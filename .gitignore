@@ -58,3 +58,6 @@
 
 # Ignore all binaries
 **/bin/
+
+# Allow clang-format.exe
+!util/clang-format.exe
