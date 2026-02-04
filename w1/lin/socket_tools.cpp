@@ -1,70 +1,69 @@
-#include <cstring>
-#include <fcntl.h>
-#include <stdio.h>
-
-#include <netdb.h>
-#include <unistd.h>
-
-
 #include "socket_tools.h"
 
+#include <cstring>
+#include <fcntl.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <unistd.h>
+
 // https://linux.die.net/man/3/getaddrinfo
-static int get_dgram_socket(addrinfo *addr, bool should_bind, addrinfo *res_addr)
+static int get_dgram_socket(addrinfo* addr, bool should_bind, addrinfo* res_addr)
 {
-  for (addrinfo *ptr = addr; ptr != nullptr; ptr = ptr->ai_next)
-  {
-    if (ptr->ai_family != AF_INET || ptr->ai_socktype != SOCK_DGRAM || ptr->ai_protocol != IPPROTO_UDP)
-      continue;
-    int sfd = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-    if (sfd == -1)
-      continue;
+	for (addrinfo* ptr = addr; ptr != nullptr; ptr = ptr->ai_next)
+	{
+		if (ptr->ai_family != AF_INET || ptr->ai_socktype != SOCK_DGRAM || ptr->ai_protocol != IPPROTO_UDP)
+			continue;
+		int sfd = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+		if (sfd == -1)
+			continue;
 
-    fcntl(sfd, F_SETFL, O_NONBLOCK);
+		fcntl(sfd, F_SETFL, O_NONBLOCK);
 
-    int trueVal = 1;
-    setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &trueVal, sizeof(int));
+		int trueVal = 1;
+		setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &trueVal, sizeof(int));
 
-    if (res_addr)
-      *res_addr = *ptr;
-    if (!should_bind)
-      return sfd;
+		if (res_addr)
+			*res_addr = *ptr;
+		if (!should_bind)
+			return sfd;
 
-    if (bind(sfd, ptr->ai_addr, ptr->ai_addrlen) == 0)
-      return sfd;
+		if (bind(sfd, ptr->ai_addr, ptr->ai_addrlen) == 0)
+			return sfd;
 
-    close(sfd);
-  }
-  return -1;
+		close(sfd);
+	}
+	return -1;
 }
 
-int create_dgram_socket(const char *address, const char *port, addrinfo *res_addr)
+int create_dgram_socket(const char* address, const char* port, addrinfo* res_addr)
 {
-  addrinfo hints;
-  memset(&hints, 0, sizeof(addrinfo));
+	addrinfo hints;
+	memset(&hints, 0, sizeof(addrinfo));
 
-  bool isListener = !address;
+	bool isListener = !address;
 
-  hints.ai_family = AF_INET;
-  hints.ai_socktype = SOCK_DGRAM;
-  if (isListener)
-    hints.ai_flags = AI_PASSIVE;
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_protocol = IPPROTO_UDP;
+	if (isListener)
+		hints.ai_flags = AI_PASSIVE;
 
-  addrinfo *result = nullptr;
-  if (getaddrinfo(address, port, &hints, &result) != 0)
-    return -1;
+	addrinfo* result = nullptr;
+	if (getaddrinfo(address, port, &hints, &result) != 0)
+		return -1;
 
-  int sfd = get_dgram_socket(result, isListener, res_addr);
+	int sfd = get_dgram_socket(result, isListener, res_addr);
 
-  // freeaddrinfo(result);
-  return sfd;
+	// freeaddrinfo(result);
+	return sfd;
 }
 
-int create_server(const char *port)
+int create_server(const char* port)
 {
-  return create_dgram_socket(nullptr, port, nullptr);
+	return create_dgram_socket(nullptr, port, nullptr);
 }
 
-int create_client(const char *address, const char *port, addrinfo *res_addr)
+int create_client(const char* address, const char* port, addrinfo* res_addr)
 {
-  return create_dgram_socket(address, port, res_addr);
+	return create_dgram_socket(address, port, res_addr);
 }

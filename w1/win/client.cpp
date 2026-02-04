@@ -13,9 +13,17 @@
 std::atomic<bool> running{true};
 
 std::string buffered_msg;
-std::vector<std::string> messages = {"https://youtu.be/dQw4w9WgXcQ?si=Ox1lQULEyKpisqd", "Never gonna give you up",
-	"Never gonna let you down", "Never gonna run around and desert you", "Never gonna make you cry",
-	"Never gonna say goodbye", "Never gonna tell a lie and hurt you", "..."};
+// clang-format off
+std::vector<std::string> messages = {
+    "https://youtu.be/dQw4w9WgXcQ?si=Ox1lQULEyKpisqd",
+    "Never gonna give you up",
+    "Never gonna let you down",
+    "Never gonna run around and desert you",
+    "Never gonna make you cry",
+    "Never gonna say goodbye",
+    "Never gonna tell a lie and hurt you",
+    "..."};
+// clang-format on
 
 const char* port = "2026";
 addrinfo resAddrInfo;
