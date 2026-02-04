@@ -83,15 +83,15 @@ void handle_input()
 
 int main(int argc, const char **argv)
 {
-  std::cout << "ChatClient - Type '/quit' to exit\n"
-            << "> ";
-
   sfd = create_client("localhost", port, &resAddrInfo);
   if (sfd == -1)
   {
     std::cout << "Failed to create a socket\n";
     return 1;
   }
+
+  std::cout << "ChatClient - Type '/quit' to exit\n"
+            << "> ";
 
   std::thread receiver(receive_messages);
   while (running)

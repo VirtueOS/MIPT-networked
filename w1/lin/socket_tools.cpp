@@ -1,8 +1,8 @@
 #include <cstring>
-
-#include <netdb.h>
 #include <fcntl.h>
 #include <stdio.h>
+
+#include <netdb.h>
 #include <unistd.h>
 
 
