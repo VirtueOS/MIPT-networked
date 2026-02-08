@@ -17,6 +17,7 @@ static int get_dgram_socket(addrinfo* addr, bool should_bind, addrinfo* res_addr
 	{
 		if (ptr->ai_family != AF_INET || ptr->ai_socktype != SOCK_DGRAM || ptr->ai_protocol != IPPROTO_UDP)
 			continue;
+
 		SOCKET sfd = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 		if (sfd == INVALID_SOCKET)
 			continue;
@@ -24,8 +25,8 @@ static int get_dgram_socket(addrinfo* addr, bool should_bind, addrinfo* res_addr
 		u_long mode = 1;
 		ioctlsocket(sfd, FIONBIO, &mode);
 
-		int trueVal = 1;
-		setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&trueVal, sizeof(int));
+		int true_val = 1;
+		setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&true_val, sizeof(int));
 
 		if (res_addr)
 			*res_addr = *ptr;
@@ -45,19 +46,19 @@ int create_dgram_socket(const char* address, const char* port, addrinfo* res_add
 	addrinfo hints;
 	memset(&hints, 0, sizeof(addrinfo));
 
-	bool isListener = !address;
+	bool is_listener = !address;
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_protocol = IPPROTO_UDP;
-	if (isListener)
+	if (is_listener)
 		hints.ai_flags = AI_PASSIVE;
 
 	addrinfo* result = nullptr;
 	if (getaddrinfo(address, port, &hints, &result) != 0)
 		return -1;
 
-	int sfd = get_dgram_socket(result, isListener, res_addr);
+	int sfd = get_dgram_socket(result, is_listener, res_addr);
 
 	return sfd;
 }
