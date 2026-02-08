@@ -34,7 +34,7 @@ void receive_messages()
 	while (running)
 	{
 		message_num = (message_num + 1) % messages.size();
-		std::cout << "\rRick: " << messages[message_num] << std::endl;
+		std::cout << "\rRick: " << messages[message_num] << "\n";
 		std::cout << "> " << buffered_msg << std::flush;
 
 		std::this_thread::sleep_for(std::chrono::seconds(5));

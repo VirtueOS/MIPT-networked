@@ -18,12 +18,12 @@ int main(int argc, const char** argv)
 
 	std::cout << "ChatServer - Listening!\n";
 
+	fd_set read_set;
+	FD_ZERO(&read_set);
+	FD_SET(sfd, &read_set);
+	timeval timeout = {0, 100000}; // 100 ms
 	while (true)
 	{
-		fd_set read_set;
-		FD_ZERO(&read_set);
-		FD_SET(sfd, &read_set);
-		timeval timeout = {0, 100000}; // 100 ms
 		select(sfd + 1, &read_set, NULL, NULL, &timeout);
 
 		if (FD_ISSET(sfd, &read_set))
