@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 // https://linux.die.net/man/3/getaddrinfo
-static int get_dgram_socket(addrinfo* addr, bool should_bind, addrinfo* res_addr)
+static int get_dgram_socket(addrinfo* addr, bool is_server, addrinfo* res_addr)
 {
 	for (addrinfo* ptr = addr; ptr != nullptr; ptr = ptr->ai_next)
 	{
@@ -25,7 +25,7 @@ static int get_dgram_socket(addrinfo* addr, bool should_bind, addrinfo* res_addr
 
 		if (res_addr)
 			*res_addr = *ptr;
-		if (!should_bind)
+		if (!is_server)
 			return sfd;
 
 		if (bind(sfd, ptr->ai_addr, ptr->ai_addrlen) == 0)
@@ -41,19 +41,19 @@ int create_dgram_socket(const char* address, const char* port, addrinfo* res_add
 	addrinfo hints;
 	memset(&hints, 0, sizeof(addrinfo));
 
-	bool is_listener = !address;
+	bool is_server = !address;
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_protocol = IPPROTO_UDP;
-	if (is_listener)
+	if (is_server)
 		hints.ai_flags = AI_PASSIVE;
 
 	addrinfo* result = nullptr;
 	if (getaddrinfo(address, port, &hints, &result) != 0)
 		return -1;
 
-	int sfd = get_dgram_socket(result, is_listener, res_addr);
+	int sfd = get_dgram_socket(result, is_server, res_addr);
 
 	// freeaddrinfo(result);
 	return sfd;
@@ -61,10 +61,10 @@ int create_dgram_socket(const char* address, const char* port, addrinfo* res_add
 
 int create_server(const char* port)
 {
-	return create_dgram_socket(nullptr, port, nullptr);
+	return create_dgram_socket(nullptr, port, nullptr); // 2026
 }
 
 int create_client(const char* address, const char* port, addrinfo* res_addr)
 {
-	return create_dgram_socket(address, port, res_addr);
+	return create_dgram_socket(address, port, res_addr); // localhost:2026
 }
