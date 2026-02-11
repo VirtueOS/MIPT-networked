@@ -26,7 +26,7 @@ std::vector<std::string> messages = {
 // clang-format on
 
 const char* port = "2026";
-addrinfo resAddrInfo;
+addrinfo addr_info;
 int sfd;
 
 void receive_messages()
@@ -73,7 +73,7 @@ void handle_input()
 		{
 			std::cout << "\rYou sent: " << buffered_msg << "\n";
 			int res =
-				sendto(sfd, buffered_msg.c_str(), buffered_msg.size(), 0, resAddrInfo.ai_addr, resAddrInfo.ai_addrlen);
+				sendto(sfd, buffered_msg.c_str(), buffered_msg.size(), 0, addr_info.ai_addr, addr_info.ai_addrlen);
 			if (res == SOCKET_ERROR)
 			{
 				int err = WSAGetLastError();
@@ -95,7 +95,7 @@ int main(int argc, const char** argv)
 		return 1;
 	}
 
-	sfd = create_client("localhost", port, &resAddrInfo);
+	sfd = create_client("localhost", port, &addr_info);
 	if (sfd == -1)
 	{
 		std::cout << "Failed to create a socket\n";
