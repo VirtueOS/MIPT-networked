@@ -11,7 +11,7 @@
 #include "socket_tools.h"
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-socket
-static int get_dgram_socket(addrinfo* addr, bool should_bind, addrinfo* res_addr)
+static int get_dgram_socket(addrinfo* addr, bool is_server, addrinfo* res_addr)
 {
 	for (addrinfo* ptr = addr; ptr != nullptr; ptr = ptr->ai_next)
 	{
@@ -30,7 +30,7 @@ static int get_dgram_socket(addrinfo* addr, bool should_bind, addrinfo* res_addr
 
 		if (res_addr)
 			*res_addr = *ptr;
-		if (!should_bind)
+		if (!is_server)
 			return (int)sfd;
 
 		if (bind(sfd, ptr->ai_addr, ptr->ai_addrlen) == 0)
@@ -46,19 +46,19 @@ int create_dgram_socket(const char* address, const char* port, addrinfo* res_add
 	addrinfo hints;
 	memset(&hints, 0, sizeof(addrinfo));
 
-	bool is_listener = !address;
+	bool is_server = !address;
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_protocol = IPPROTO_UDP;
-	if (is_listener)
+	if (is_server)
 		hints.ai_flags = AI_PASSIVE;
 
 	addrinfo* result = nullptr;
 	if (getaddrinfo(address, port, &hints, &result) != 0)
 		return -1;
 
-	int sfd = get_dgram_socket(result, is_listener, res_addr);
+	int sfd = get_dgram_socket(result, is_server, res_addr);
 
 	return sfd;
 }
@@ -105,5 +105,6 @@ WSA::~WSA()
 	{
 		WSACleanup();
 		wsa_initialized = false;
+		std::cout << "Deinitialize WSA" << std::endl;
 	}
 }
